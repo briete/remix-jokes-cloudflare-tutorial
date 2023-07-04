@@ -1,0 +1,7 @@
+name = "remix-jokes"
+
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "remix-jokes"
+database_id = "292f5fd8-8e43-48aa-8e21-ac12dbe80168"
+preview_database_id = "99ef0a62-4056-401d-acaf-9cb5f6381af3"
