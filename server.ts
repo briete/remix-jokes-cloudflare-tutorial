@@ -4,6 +4,10 @@ import * as build from "@remix-run/dev/server-build";
 
 export interface Env {
   DB: D1Database;
+  POLICY_AUD: string;
+  JWKS_URL: string;
+  LOGOUT_URL: string;
+  ASSETS: Fetcher;
 }
 
 if (process.env.NODE_ENV === "development") {

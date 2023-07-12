@@ -1,0 +1,1 @@
+ALTER TABLE jokes ADD `userId` text DEFAULT 'anonymous' NOT NULL;

@@ -1,12 +1,13 @@
-import type { ActionArgs } from "@remix-run/cloudflare";
+import type { ActionArgs, LoaderArgs } from "@remix-run/cloudflare";
 import type { Env } from "server";
 
-import { redirect } from "@remix-run/cloudflare";
-import { useActionData } from "@remix-run/react";
+import { json, redirect } from "@remix-run/cloudflare";
+import { useActionData, isRouteErrorResponse, useRouteError, Link, useLoaderData } from "@remix-run/react";
 
 import { client } from "~/db/client.server";
 import { jokes } from "~/db/schema";
 import { badRequest } from "~/utils/request.server";
+import { verify } from "~/auth/session.server";
 
 function validateJokeContent(content: string) {
   if (content.length < 10) {
@@ -20,8 +21,19 @@ function validateJokeName(name: string) {
   }
 }
 
+export const loader = async ({ request, context }: LoaderArgs) => {
+  const env = context.env as Env;
+  const user = await verify(request, env);
+
+  return json({
+    user,
+  })
+}
+
 export const action = async ({ request, context }: ActionArgs) => {
   const env = context.env as Env;
+  const user = await verify(request, env);
+
   const form = await request.formData();
   const content = form.get("content");
   const name = form.get("name");
@@ -49,12 +61,20 @@ export const action = async ({ request, context }: ActionArgs) => {
     });
   }
 
-  const joke = await client(env.DB).insert(jokes).values(fields).returning({ id: jokes.id }).get();
+  const joke = await client(env.DB).insert(jokes).values({ 
+    ...fields, userId: user.sub 
+  }).returning({ id: jokes.id }).get();
+
   return redirect(`/jokes/${joke.id}`);
 };
 
 export default function NewJokeRoute() {
   const actionData = useActionData<typeof action>();
+  const loadData = useLoaderData<typeof loader>();
+
+  if (!loadData.user) {
+    throw new Response("Unauthorized", { status: 401 });
+  }
 
   return (
     <div>
@@ -127,6 +147,25 @@ export default function NewJokeRoute() {
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error) && error.status === 401) {
+    return (
+      <div className="error-container">
+        <p>You must be logged in to create a joke.</p>
+        <Link to="/login">Login</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="error-container">
+      Something unexpected went wrong. Sorry about that.
     </div>
   );
 }
