@@ -1,8 +1,12 @@
-# Remix Jokes チュートリアル For Cloudflare
+# Remix Jokes チュートリアル for Cloudflare
 
 以下のチュートリアルをCloudflare Pages + Cloudflare D1 + Cloudflare Accessに対応させたチュートリアルのサンプルコードです。
 
 [Remix Jokes App Tutorial](https://remix.run/docs/en/main/tutorials/jokes)
+
+## アーキテクチャ
+
+![](/images/README/2023-07-12-12-04-42.png)
 
 ## 事前準備
 
@@ -40,9 +44,6 @@ npm run migration:remote
 POLICY_AUD={cloudflare accessのaud}
 JWKS_URL=https://{your-team-domai}/cdn-cgi/access/certs
 LOGOUT_URL=https://{your-team-domain}/cdn-cgi/access/logout
-DATABASE_ID=
-DATABASE_NAME=
-PREVIEW_DATABASE_ID=
 ```
 
 ## ローカル起動
@@ -56,10 +57,10 @@ npm run dev
 ### ローカルからデプロイ
 
 ```sh
-npm run dev
+npm run build
 npm run deploy
 ```
 
-### リポジトリPushで自動デプロイ
+### Pushによる自動デプロイ
 
 事前にCloudflareの管理画面からPagesのプロジェクトを作成してGitHubのリポジトリと紐づけます。その後はPushすれば自動でデプロイが行われます。
